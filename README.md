@@ -14,7 +14,12 @@
      pip install venv
      ```
 
-2. Active el entorno virtual de Python:
+2. Crear el entorno virtual:
+   ```
+     python -m venv {nombre entorno virtual por ejemplo: venv}
+   ```
+
+3. Active el entorno virtual de Python:
    - En Windows:
      ```bash
      venv\Scripts\activate
@@ -26,15 +31,15 @@
 
 ## Instalación de Dependencias
 
-3. Instale las dependencias del proyecto desde el archivo `requirements.txt`:
+4. Instale las dependencias del proyecto desde el archivo `requirements.txt`:
    ```bash
    pip install -r requirements.txt
 
 ## Instalación y configuración de base de datos
 
-4. Instale PostgreSQL y configure su base de datos.
+5. Instale PostgreSQL y configure su base de datos.
 
-5. En el archivo .env, proporcione la información necesaria para la conexión a la base de datos. Debe configurar las siguientes variables de entorno:
+6. En el archivo .env, proporcione la información necesaria para la conexión a la base de datos. Debe configurar las siguientes variables de entorno:
   ```
   DB_HOST=nombre_de_host
   DB_USER=nombre_de_usuario
@@ -42,7 +47,7 @@
   DB_NAME=nombre_de_base_de_datos
   ```
 ## Levantar API
-6. Ejecutar el siguiente comando:
+7. Ejecutar el siguiente comando:
     ```
     uvicorn app.main:app --reload
     ```
