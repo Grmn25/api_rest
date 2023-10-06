@@ -5,6 +5,7 @@ from app.models import Categoria
 
 router = APIRouter()
 
+
 @router.get("/categorys", tags=['categorys'])
 async def get_categorys():
     try:
@@ -13,8 +14,9 @@ async def get_categorys():
         return {"categorys": result}
 
     except Exception as e:
-        return {"error" : str(e)}
-    
+        return {"error": str(e)}
+
+
 @router.post("/categorys", tags=['categorys'])
 async def create_category(category: Categoria):
     try:
@@ -32,9 +34,8 @@ async def create_category(category: Categoria):
         if created_category:
             return created_category
         else:
-            raise HTTPException(status_code = 500, detail = "Error al crear la categoria")
-        
+            raise HTTPException(
+                status_code=500, detail="Error al crear la categoria")
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
-

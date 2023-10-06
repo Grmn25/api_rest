@@ -33,10 +33,10 @@ async def create_user(user: Usuario):
         if created_user:
             return created_user
         else:
-            raise HTTPException(status_code = 500, detail = "Error al crear el producto")
+            raise HTTPException(status_code = 500, detail = "Error al crear el usuario")
 
     except Exception as e:
-        raise HTTPException(status_code = 500, detail = "Error al crear el producto")
+        raise HTTPException(status_code = 500, detail = "Error al crear el usuario")
 
 
 @router.post('/users/login/', tags=['users'])
