@@ -1,20 +1,22 @@
-from fastapi import APIRouter,HTTPException
+from fastapi import APIRouter, HTTPException
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models import Usuario, Login
 from app.database import database
 
 router = APIRouter()
 
+
 @router.get("/users/", tags=['users'])
 async def get_users():
-    try: 
+    try:
         query = "SELECT * FROM usuario"
         result = await database.fetch_all(query)
         return {"users": result}
 
     except Exception as e:
-        return {"error" : str(e)}
-    
+        return {"error": str(e)}
+
+
 @router.post("/users/", tags=['users'])
 async def create_user(user: Usuario):
     try:
@@ -33,15 +35,17 @@ async def create_user(user: Usuario):
         if created_user:
             return created_user
         else:
-            raise HTTPException(status_code = 500, detail = "Error al crear el usuario")
+            raise HTTPException(
+                status_code=500, detail="Error al crear el usuario")
 
-    except Exception as e:
-        raise HTTPException(status_code = 500, detail = "Error al crear el usuario")
+    except Exception:
+        raise HTTPException(
+            status_code=500, detail="Error al crear el usuario")
 
 
 @router.post('/users/login/', tags=['users'])
 async def login(user: Login):
-    try:    
+    try:
         first_query = """
              SELECT * FROM usuario WHERE usuario = :user
       """
@@ -50,11 +54,13 @@ async def login(user: Login):
         }
         result = await database.fetch_one(query=first_query, values=first_value)
         if result is None:
-            raise HTTPException(status_code=401, detail="Credenciales incorrectas")
+            raise HTTPException(
+                status_code=401, detail="Credenciales incorrectas")
         elif not check_password_hash(result[4], user.password):
-            raise HTTPException(status_code=401, detail="Credenciales incorrectas")
+            raise HTTPException(
+                status_code=401, detail="Credenciales incorrectas")
         usuaro_id = result[0]
         return {"check": usuaro_id}
-    except Exception as e:
-            raise HTTPException(status_code=500, detail="Error al intentar verificar las credenciales")
-    
+    except Exception:
+        raise HTTPException(
+            status_code=500, detail="Error al intentar verificar las credenciales")

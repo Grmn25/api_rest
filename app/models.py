@@ -25,6 +25,19 @@ class Login(BaseModel):
     password: str
 
 
+class Cliente(BaseModel):
+    name: str
+    email: str
+    password: str
+    telefono: str
+    direccion: str
+
+
+class ClientLogin(BaseModel):
+    email: str
+    password: str
+
+
 class ImagenProductoCreate(BaseModel):
     producto_id: int
     is_principal_image: bool = False
