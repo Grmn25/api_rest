@@ -59,8 +59,8 @@ async def login(user: Login):
         elif not check_password_hash(result[4], user.password):
             raise HTTPException(
                 status_code=401, detail="Credenciales incorrectas")
-        usuaro_id = result[0]
-        return {"check": usuaro_id}
+        usuario_id = result[0]
+        return {"check": usuario_id}
     except Exception:
         raise HTTPException(
             status_code=500, detail="Error al intentar verificar las credenciales")

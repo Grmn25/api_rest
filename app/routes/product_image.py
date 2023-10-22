@@ -6,7 +6,6 @@ from starlette.responses import StreamingResponse
 from app.database import database
 import uuid
 import shutil
-from io import BytesIO
 from typing import List
 from pathlib import Path
 
