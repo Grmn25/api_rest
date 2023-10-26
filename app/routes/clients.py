@@ -23,7 +23,6 @@ async def get_users():
 @router.post("/clients/", tags=['clients'])
 async def create_user(client: Cliente):
     try:
-        # Verificar si el cliente ya existe en la base de datos
         first_query = "SELECT cliente_id FROM cliente WHERE email= :email"
         first_value = {"email": client.email}
         client_exist = await database.fetch_one(first_query, first_value)

@@ -48,3 +48,18 @@ class Oferta(BaseModel):
     discount: int
     date_start: AwareDatetime
     date_end: AwareDatetime
+
+
+class Review(BaseModel):
+    producto_id: int
+    cliente_id: int
+    puntuacion: int
+    review: str
+
+class Purchase(BaseModel):
+    id_compra: int
+    producto_id: int
+    nombre_producto: str
+    precio_unitario: int
+    cantidad_comprada: int
+    total_producto: int

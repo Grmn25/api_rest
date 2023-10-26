@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.routing import APIRouter
-from app.routes import users, categorys, products, product_image, clients
+from app.routes import users, categorys, products, product_image, clients, reviews, purchases, offers
 from app.database import database
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -22,6 +22,9 @@ app.include_router(clients.router)
 app.include_router(categorys.router)
 app.include_router(products.router)
 app.include_router(product_image.router)
+app.include_router(reviews.router)
+app.include_router(purchases.router)
+app.include_router(offers.router)
 
 
 @app.on_event('startup')

@@ -48,19 +48,16 @@ async def get_product_images(product_id: int):
             raise HTTPException(
                 status_code=404, detail="Imagen del producto {} no encontrada".format(product_id))
 
-        # Extrae las rutas de archivo de las imágenes
         image_paths = [row[0] for row in result_product]
 
         if not image_paths:
             raise HTTPException(
                 status_code=404, detail="No se encontraron imágenes para el producto con ID: {}".format(product_id))
 
-        # Transmite las imágenes como respuestas de transmisión (StreamingResponse)
         def generate():
             for image_path in image_paths:
-                image_path = Path(image_path)  # Convierte la ruta en un objeto Path
+                image_path = Path(image_path)  
                 if image_path.exists() and image_path.is_file():
-                    # Lee los datos binarios de la imagen y los transmite
                     with open(image_path, "rb") as image_file:
                         yield image_file.read()
 
@@ -128,7 +125,6 @@ async def create_product_images(
             raise HTTPException(
                 status_code=404, detail="Producto no encontrado")
 
-        # Bandera para rastrear si hemos encontrado la primera imagen principal
         first_principal_image_found = False
 
         for file in files:
@@ -140,7 +136,6 @@ async def create_product_images(
             with open(image_path, "wb") as image_file:
                 shutil.copyfileobj(file.file, image_file)
 
-            # Determinar si esta imagen debe ser marcada como principal
             is_principal_image = not first_principal_image_found
 
             query = """
@@ -160,7 +155,6 @@ async def create_product_images(
                 raise HTTPException(
                     status_code=500, detail="Error al crear la imagen")
 
-            # Si esta es la primera imagen principal, actualiza la bandera
             if is_principal_image:
                 first_principal_image_found = True
 
