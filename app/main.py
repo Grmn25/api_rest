@@ -1,10 +1,9 @@
 from fastapi import FastAPI
-from fastapi.routing import APIRouter
 from app.routes import users, categorys, products, product_image, clients, reviews, purchases, offers
 from app.database import database
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import SECRET_KEY
+
 
 app = FastAPI()
 

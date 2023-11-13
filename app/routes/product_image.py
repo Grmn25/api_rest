@@ -1,6 +1,6 @@
 import os
 from fastapi import APIRouter, HTTPException, UploadFile, File
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse, JSONResponse
 from app.models import ImagenProductoCreate
 from starlette.responses import StreamingResponse
 from app.database import database
@@ -8,6 +8,13 @@ import uuid
 import shutil
 from typing import List
 from pathlib import Path
+import tinify
+import base64
+
+
+
+
+
 
 router = APIRouter()
 
@@ -39,7 +46,7 @@ async def get_product_image(product_id: int):
 async def get_product_images(product_id: int):
     try:
         product = """
-             SELECT imagen_url FROM imagen_producto WHERE producto_id = :product_id
+             SELECT imagen_id, imagen_url FROM imagen_producto WHERE producto_id = :product_id
         """
         value_product = {"product_id": product_id}
         result_product = await database.fetch_all(query=product, values=value_product)
@@ -48,23 +55,24 @@ async def get_product_images(product_id: int):
             raise HTTPException(
                 status_code=404, detail="Imagen del producto {} no encontrada".format(product_id))
 
-        image_paths = [row[0] for row in result_product]
+        images = []
+        for row in result_product:
+            imagen_id, imagen_url = row[0], row[1]
+            image_path = Path(imagen_url)
+            if image_path.exists() and image_path.is_file():
+                with open(image_path, "rb") as image_file:
+                    image_data = image_file.read()
+                    image_base64 = base64.b64encode(image_data).decode('utf-8')
+                    images.append({"imagen_id": imagen_id, "imagen_data": image_base64})
 
-        if not image_paths:
+        if not images:
             raise HTTPException(
                 status_code=404, detail="No se encontraron imágenes para el producto con ID: {}".format(product_id))
 
-        def generate():
-            for image_path in image_paths:
-                image_path = Path(image_path)  
-                if image_path.exists() and image_path.is_file():
-                    with open(image_path, "rb") as image_file:
-                        yield image_file.read()
+        return JSONResponse(content={"imagenes": images})
 
-        return StreamingResponse(content=generate(), media_type="image/jpeg")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 @router.post("/images", tags=['product_image'])
 async def get_images(
     producto_id: int,
@@ -114,16 +122,18 @@ async def get_images(
 
 @router.post("/images/multiple", tags=['product_image'])
 async def create_product_images(
-    producto_id: int,
     files: List[UploadFile],
 ):
     try:
-        first_query = "SELECT * FROM producto WHERE producto_id = :product_id"
-        first_values = {"product_id": producto_id}
-        product = await database.fetch_one(query=first_query, values=first_values)
-        if product is None:
+        first_query = "SELECT MAX(producto_id) FROM producto"
+
+        max_id_record = await database.fetch_one(first_query)
+        if max_id_record and max_id_record[0] is not None:
+            producto_id = max_id_record[0]
+        else:
             raise HTTPException(
-                status_code=404, detail="Producto no encontrado")
+                status_code=500, detail="Error al intentar cargar las imagenes"
+            )
 
         first_principal_image_found = False
 

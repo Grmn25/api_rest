@@ -1,0 +1,4 @@
+2023-10-27 17:28:58,458 - databases - INFO - Connected to database postgresql://postgres:********@localhost/ecommerce
+2023-10-27 17:29:03,176 - databases - INFO - Disconnected from database postgresql://postgres:********@localhost/ecommerce
+2023-10-27 17:29:04,037 - databases - INFO - Connected to database postgresql://postgres:********@localhost/ecommerce
+2023-10-27 17:29:09,859 - databases - INFO - Disconnected from database postgresql://postgres:********@localhost/ecommerce
