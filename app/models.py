@@ -25,16 +25,23 @@ class Login(BaseModel):
     password: str
 
 
-class Cliente(BaseModel):
+class Client(BaseModel):
     name: str
     email: str
-    password: str
     telefono: str
     direccion: str
 
 
-class ClientLogin(BaseModel):
+class ClientUser(BaseModel):
+    name: str
     email: str
+    user: str
+    password: str
+    telefono: str
+    direccion: str
+
+class ClientLogin(BaseModel):
+    user: str
     password: str
 
 

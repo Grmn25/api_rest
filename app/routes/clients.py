@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.models import Cliente, ClientLogin
+from app.models import Client, ClientLogin, ClientUser
 from app.database import database
 import jwt
 from app.config import SECRET_KEY
@@ -20,8 +20,8 @@ async def get_users():
         return {"error": str(e)}
 
 
-@router.post("/clients/", tags=['clients'])
-async def create_user(client: Cliente):
+@router.post("/clients/user", tags=['clients'])
+async def create_user(client: ClientUser):
     try:
         first_query = "SELECT cliente_id FROM cliente WHERE email= :email"
         first_value = {"email": client.email}
@@ -31,21 +31,35 @@ async def create_user(client: Cliente):
                 status_code=500, detail="Error al crear el usuario, email ya registrado")
 
         query = """
-            INSERT INTO cliente (nombre, email, cliente_password, telefono, direccion)
-            VALUES (:name, :email, :password, :telefono, :direccion)
+            INSERT INTO cliente (nombre, email, telefono, direccion, tiene_usuario)
+            VALUES (:name, :email, :telefono, :direccion, true)
             RETURNING cliente_id, nombre, email, fecha_registro
         """
         values = {
             "name": client.name,
             "email": client.email,
-            "password": generate_password_hash(client.password),
             "telefono": client.telefono,
             "direccion": client.direccion
         }
         created_client = await database.fetch_one(query=query, values=values)
-        
+
         if created_client:
-            payload = {"sub": created_client[0], 'email': created_client[2]}
+            cliente_id = created_client[0]
+            nombre = created_client[1]
+            print("nombre: ", nombre)
+            
+            create_user = """
+                INSERT INTO cliente_usuario (cliente_id, nombre_usuario, password_usuario) 
+                VALUES (:client_id, :user, :password)
+                RETURNING cliente_id, nombre_usuario
+            """
+            values_user = {
+                "client_id": cliente_id,
+                "user": client.user,
+                "password": generate_password_hash(client.password)
+            }
+            created_user = await database.execute(query=create_user, values=values_user)
+            payload = {"sub": cliente_id, 'user': client.user}
             token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
             return {"token": token}
         else:
@@ -58,15 +72,14 @@ async def create_user(client: Cliente):
         raise HTTPException(
             status_code=500, detail=str(e))
 
-
 @router.post('/clients/login/', tags=['clients'])
 async def login(client: ClientLogin):
     try:
         first_query = """
-             SELECT * FROM cliente WHERE email = :email
+             SELECT * FROM cliente_usuario WHERE nombre_usuario = :usuario
       """
         first_value = {
-            "email": client.email
+            "usuario": client.user
         }
         result = await database.fetch_one(query=first_query, values=first_value)
         if result is None:
@@ -75,7 +88,7 @@ async def login(client: ClientLogin):
         elif not check_password_hash(result[3], client.password):
             raise HTTPException(
                 status_code=401, detail="Credenciales incorrectas")
-        payload = {'sub': result[0], 'email': result[2]}
+        payload = {'sub': result[0], 'user': result[2]}
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
         return {"token": token}
     except Exception:
