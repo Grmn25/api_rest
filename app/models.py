@@ -7,6 +7,7 @@ class Producto(BaseModel):
     desc: str
     stock: int
     category_id: int
+    estado: str = "disponible"
 
 
 class Categoria(BaseModel):
