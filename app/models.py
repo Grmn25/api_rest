@@ -12,6 +12,7 @@ class Producto(BaseModel):
 
 class Categoria(BaseModel):
     category: str
+    estado: str = "disponible"
 
 
 class Usuario(BaseModel):
@@ -41,6 +42,7 @@ class ClientUser(BaseModel):
     telefono: str
     direccion: str
 
+
 class ClientLogin(BaseModel):
     user: str
     password: str
@@ -63,6 +65,7 @@ class Review(BaseModel):
     cliente_id: int
     puntuacion: int
     review: str
+
 
 class Purchase(BaseModel):
     id_compra: int

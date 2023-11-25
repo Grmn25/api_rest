@@ -17,10 +17,37 @@ async def get_products():
         return {"error": str(e)}
 
 
+@router.get("/products/display", tags=['products'])
+async def get_products_display():
+    try:
+        query = "SELECT * FROM producto WHERE estado = 'disponible'"
+        result = await database.fetch_all(query)
+        return {"products": result}
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
 @router.get("/products/{category}", tags=['products'])
 async def get_products_category(category: str):
     try:
         first_query = "SELECT categoria_id FROM categoria WHERE categoria = :categoria"
+        first_value = {"categoria": category}
+        categoria_id = await database.fetch_one(query=first_query, values=first_value)
+
+        query = "SELECT * FROM producto WHERE categoria_id = :categoria_id"
+        values = {"categoria_id": categoria_id["categoria_id"]}
+        result = await database.fetch_all(query=query, values=values)
+        return {"products": result}
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@router.get("/products/{category}/display", tags=['products'])
+async def get_products_category(category: str):
+    try:
+        first_query = "SELECT categoria_id FROM categoria WHERE categoria = :categoria and estado = 'disponible'"
         first_value = {"categoria": category}
         categoria_id = await database.fetch_one(query=first_query, values=first_value)
 
@@ -74,6 +101,7 @@ async def create_product(product: Producto):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.put("/products/{id}", tags=['products'])
 async def update_product(product: Producto, id: int):
