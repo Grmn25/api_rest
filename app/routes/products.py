@@ -47,7 +47,7 @@ async def get_products_category(category: str):
 @router.get("/products/{category}/display", tags=['products'])
 async def get_products_category(category: str):
     try:
-        first_query = "SELECT categoria_id FROM categoria WHERE categoria = :categoria and estado = 'disponible'"
+        first_query = "SELECT categoria_id FROM categoria WHERE categoria = :categoria and estado = 'disponible' and stock > 0"
         first_value = {"categoria": category}
         categoria_id = await database.fetch_one(query=first_query, values=first_value)
 
