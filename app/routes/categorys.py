@@ -20,7 +20,7 @@ async def get_categorys():
 @router.get("/categorys/display", tags=['categorys'])
 async def get_categorys_display():
     try:
-        query = "SELECT * FROM categoria WHERE estado = 'disponible'"
+        query = "SELECT * FROM categoria WHERE estado = 'Habilitado'"
         result = await database.fetch_all(query)
         return {"categorys": result}
     except Exception as e:
@@ -31,12 +31,13 @@ async def get_categorys_display():
 async def create_category(category: Categoria):
     try:
         query = """
-            INSERT INTO categoria (categoria)
-            VALUES (:category)
+            INSERT INTO categoria (categoria, estado)
+            VALUES (:category, :estado)
             RETURNING categoria_id, categoria
         """
         values = {
-            "category": category.category
+            "category": category.category,
+            "estado": category.estado
         }
 
         created_category = await database.fetch_one(query=query, values=values)

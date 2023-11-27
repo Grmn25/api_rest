@@ -1,4 +1,5 @@
-from pydantic import BaseModel, AwareDatetime
+from pydantic import BaseModel
+from datetime import date
 
 
 class Producto(BaseModel):
@@ -7,12 +8,12 @@ class Producto(BaseModel):
     desc: str
     stock: int
     category_id: int
-    estado: str = "disponible"
+    estado: str = "Habilitado"
 
 
 class Categoria(BaseModel):
     category: str
-    estado: str = "disponible"
+    estado: str = "Deshabilitado"
 
 
 class Usuario(BaseModel):
@@ -56,8 +57,8 @@ class ImagenProductoCreate(BaseModel):
 class Oferta(BaseModel):
     producto_id: int
     discount: int
-    date_start: AwareDatetime
-    date_end: AwareDatetime
+    date_start: date
+    date_end: date
 
 
 class Review(BaseModel):

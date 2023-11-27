@@ -64,3 +64,39 @@ async def login(user: Login):
     except Exception:
         raise HTTPException(
             status_code=500, detail="Error al intentar verificar las credenciales")
+
+
+@router.put('/users/login/{usuario_id}', tags=['users'])
+async def login(user: Usuario, usuario_id: int):
+    try:
+        first_query = """
+             SELECT * FROM usuario WHERE usuario_id = :usuario_id
+      """
+        first_value = {
+            "usuario_id": usuario_id
+        }
+        result = await database.fetch_one(query=first_query, values=first_value)
+        if result is None:
+            raise HTTPException(
+                status_code=401, detail="Usuario no es válido")
+
+        update_query = """
+            UPDATE usuario SET nombre = :nombre, usuario = :usuario, email = :email, password = :password WHERE usuario_id = :usuario_id
+        """
+        values_update = (
+            "nombre", user.name,
+            "usuario", user.user,
+            "email", user.email,
+            "password", generate_password_hash(user.password),
+            "usuario_id", usuario_id
+        )
+
+        execute_update = await database.execute(query=update_query, values=values_update)
+        if execute_update is None:
+            raise HTTPException(
+                status_code=401, detail="Usuario no se ha podido actualizar")
+
+        return {"check": usuario_id}
+    except Exception:
+        raise HTTPException(
+            status_code=500, detail="Error al intentar verificar las credenciales")

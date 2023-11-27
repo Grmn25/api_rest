@@ -15,7 +15,8 @@ async def get_offers():
 
     except Exception as e:
         return {"error": str(e)}
-    
+
+
 @router.get("/offers/{producto_id}", tags=['offers'])
 async def get_offer(producto_id):
     try:
@@ -26,7 +27,8 @@ async def get_offer(producto_id):
 
     except Exception as e:
         return {"error": str(e)}
-    
+
+
 @router.post("/offers", tags=['offers'])
 async def create_offer(offer: Oferta):
     try:
@@ -35,19 +37,20 @@ async def create_offer(offer: Oferta):
                 VALUES (:producto_id, :descuento, :fecha_inicio, :fecha_termino)
                 RETURNING producto_id, descuento, fecha_inicio, fecha_termino
                 """
-        values = {"producto_id":offer.producto_id,
+        values = {"producto_id": offer.producto_id,
                   "descuento": offer.discount,
                   "fecha_inicio": offer.date_start,
                   "fecha_termino": offer.date_end
                   }
-        
+
         create_offer = await database.fetch_one(query, values)
 
         if create_offer:
             return create_offer
-        else: 
-            raise HTTPException(status_code=500, detail="Error al crear la oferta")
-        
+        else:
+            raise HTTPException(
+                status_code=500, detail="Error al crear la oferta")
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -65,14 +68,14 @@ async def modify_offer(offer: Oferta):
                   "fecha_termino": offer.date_end,
                   "producto_id": offer.producto_id,
                   }
-        
+
         update_offer = await database.fetch_one(query, values)
 
         if update_offer:
             return update_offer
         else:
-            raise HTTPException(status_code=500, detail="Error al crear la oferta")
+            raise HTTPException(
+                status_code=500, detail="Error al crear la oferta")
 
     except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
-        
+        raise HTTPException(status_code=500, detail=str(e))

@@ -20,7 +20,7 @@ async def get_products():
 @router.get("/products/display", tags=['products'])
 async def get_products_display():
     try:
-        query = "SELECT * FROM producto WHERE estado = 'disponible'"
+        query = "SELECT * FROM producto WHERE estado = 'Habilitado'"
         result = await database.fetch_all(query)
         return {"products": result}
 
@@ -47,11 +47,11 @@ async def get_products_category(category: str):
 @router.get("/products/{category}/display", tags=['products'])
 async def get_products_category(category: str):
     try:
-        first_query = "SELECT categoria_id FROM categoria WHERE categoria = :categoria and estado = 'disponible' and stock > 0"
+        first_query = "SELECT categoria_id FROM categoria WHERE categoria = :categoria and estado = 'Habilitado'"
         first_value = {"categoria": category}
         categoria_id = await database.fetch_one(query=first_query, values=first_value)
 
-        query = "SELECT * FROM producto WHERE categoria_id = :categoria_id"
+        query = "SELECT * FROM producto WHERE categoria_id = :categoria_id and estado = 'Habilitado' and stock > 0"
         values = {"categoria_id": categoria_id["categoria_id"]}
         result = await database.fetch_all(query=query, values=values)
         return {"products": result}
