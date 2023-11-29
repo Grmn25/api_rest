@@ -33,7 +33,7 @@ async def create_user(user: Usuario):
         }
         created_user = await database.fetch_one(query=query, values=values)
         if created_user:
-            return created_user
+            return {"user": created_user}
         else:
             raise HTTPException(
                 status_code=500, detail="Error al crear el usuario")
@@ -66,8 +66,8 @@ async def login(user: Login):
             status_code=500, detail="Error al intentar verificar las credenciales")
 
 
-@router.put('/users/login/{usuario_id}', tags=['users'])
-async def login(user: Usuario, usuario_id: int):
+@router.put('/users/{usuario_id}', tags=['users'])
+async def update_user(user: Usuario, usuario_id: int):
     try:
         first_query = """
              SELECT * FROM usuario WHERE usuario_id = :usuario_id
@@ -81,22 +81,19 @@ async def login(user: Usuario, usuario_id: int):
                 status_code=401, detail="Usuario no es válido")
 
         update_query = """
-            UPDATE usuario SET nombre = :nombre, usuario = :usuario, email = :email, password = :password WHERE usuario_id = :usuario_id
+            UPDATE usuario SET nombre = :nombre, usuario = :usuario, email = :email, pass = :password WHERE usuario_id = :usuario_id
         """
-        values_update = (
-            "nombre", user.name,
-            "usuario", user.user,
-            "email", user.email,
-            "password", generate_password_hash(user.password),
-            "usuario_id", usuario_id
-        )
+        values_update = {
+            "nombre": user.name,
+            "usuario": user.user,
+            "email": user.email,
+            "password": generate_password_hash(user.password),
+            "usuario_id": usuario_id,
+        }
 
         execute_update = await database.execute(query=update_query, values=values_update)
-        if execute_update is None:
-            raise HTTPException(
-                status_code=401, detail="Usuario no se ha podido actualizar")
+        return {"check": "Usuario actualizado"}
 
-        return {"check": usuario_id}
-    except Exception:
+    except Exception as e:
         raise HTTPException(
-            status_code=500, detail="Error al intentar verificar las credenciales")
+            status_code=500, detail=f"Error al actualizar el usuario: {str(e)}")
