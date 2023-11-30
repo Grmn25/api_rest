@@ -46,8 +46,7 @@ async def create_user(client: ClientUser):
         if created_client:
             cliente_id = created_client[0]
             nombre = created_client[1]
-            print("nombre: ", nombre)
-            
+
             create_user = """
                 INSERT INTO cliente_usuario (cliente_id, nombre_usuario, password_usuario) 
                 VALUES (:client_id, :user, :password)
@@ -59,18 +58,18 @@ async def create_user(client: ClientUser):
                 "password": generate_password_hash(client.password)
             }
             created_user = await database.execute(query=create_user, values=values_user)
-            payload = {"sub": cliente_id, 'user': client.user}
+            payload = {"sub": cliente_id, 'user': client.user, 'name': nombre}
             token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
             return {"token": token}
         else:
             raise HTTPException(
                 status_code=500, detail="Error al crear el usuario")
 
-
     except Exception as e:
-        
+
         raise HTTPException(
             status_code=500, detail=str(e))
+
 
 @router.post('/clients/login/', tags=['clients'])
 async def login(client: ClientLogin):
@@ -82,13 +81,25 @@ async def login(client: ClientLogin):
             "usuario": client.user
         }
         result = await database.fetch_one(query=first_query, values=first_value)
+
         if result is None:
             raise HTTPException(
                 status_code=401, detail="Credenciales incorrectas")
         elif not check_password_hash(result[3], client.password):
+
             raise HTTPException(
                 status_code=401, detail="Credenciales incorrectas")
-        payload = {'sub': result[0], 'user': result[2]}
+
+        cliente_id = result[0]
+        query = """
+            SELECT nombre FROM cliente WHERE cliente_id = :client_id
+        """
+        values = {
+            "client_id": cliente_id
+        }
+        name = await database.fetch_one(query=query, values=values)
+
+        payload = {'sub': result[1], 'user': result[2], 'name': name[0]}
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
         return {"token": token}
     except Exception:
